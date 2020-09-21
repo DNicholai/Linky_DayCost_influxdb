@@ -1,0 +1,45 @@
+#!/usr/bin/python3
+
+from influxdb import InfluxDBClient
+client = InfluxDBClient(host='localhost', port=8087)
+client.switch_database('mqttwarn')
+
+prix_HP = 0.1579 # € per kW
+prix_HC = 0.1228 # € per kW
+
+
+
+q = client.query("select value FROM EnergyMon WHERE time >= '2019-07-11T00:00:00Z' and topic = 'Linky-020828327174-data_index_p' limit 1")
+points = q.get_points()
+for item in points:
+	HP_old = item['value']
+	#print("The old value is " + repr(HP_old) + "\n")
+r = client.query("select value FROM EnergyMon WHERE time >= '2019-07-11T23:59:00Z' and topic = 'Linky-020828327174-data_index_p' limit 1")
+points1 = r.get_points()
+for item in points1:
+        HP_new = item['value']
+	
+#print("The new value is " + repr(HP_new) + "\n")
+
+
+HP_diff = HP_new - HP_old
+HP_monetary = HP_diff * (prix_HP/1000)
+
+print("Fontgrain Daily Power Consumtion:\nHP: " + repr(HP_diff) + " -- " + repr(round(HP_monetary,2)) + " €")
+
+q = client.query("select value FROM EnergyMon WHERE time >= '2019-07-11T00:00:00Z' and topic = 'Linky-020828327174-data_index_c' limit 1")
+points = q.get_points()
+for item in points:
+        HC_old = item['value']
+        #print("The old value is " + repr(HC_old) + "\n")
+r = client.query("select value FROM EnergyMon WHERE time >= '2019-07-11T23:59:00Z' and topic = 'Linky-020828327174-data_index_c' limit 1")
+points1 = r.get_points()
+for item in points1:
+        HC_new = item['value']
+	
+#print("The new value is " + repr(HC_new) + "\n")
+
+HC_diff = HC_new - HC_old
+HC_monetary = HC_diff * (prix_HC/1000)
+print("HC: " + repr(HC_diff) + " -- " + repr(round(HC_monetary,2)) + " € \n")
+
