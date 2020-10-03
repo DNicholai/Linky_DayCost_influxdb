@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 
 from influxdb import InfluxDBClient
 from datetime import datetime,timedelta
@@ -52,6 +54,14 @@ if debug == 1:
 # Query for HP lower val
 q = client.query(query_str_hp_e)
 points = q.get_points()
+if len(q) == 0 :
+	msg = "\nFontgrain Linky Data \n---No data found in the earlier query "
+	client1.on_publish = on_publish                          #assign function to callback
+	client1.connect(broker,port)                                 #establish connection
+	ret= client1.publish(topic,msg,qos=0,retain=False)                   #publish
+
+
+
 for item in points:
 	HP_old = item['value']
 	if debug == 1:
