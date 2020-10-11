@@ -59,7 +59,7 @@ if len(q) == 0 :
 	client1.on_publish = on_publish                          #assign function to callback
 	client1.connect(broker,port)                                 #establish connection
 	ret= client1.publish(topic,msg,qos=0,retain=False)                   #publish
-
+	quit()
 
 
 for item in points:
@@ -71,6 +71,15 @@ for item in points:
 
 r = client.query(query_str_hp_l)
 points1 = r.get_points()
+if len(r) == 0 :
+        msg = "\nFontgrain Linky Data \n---No data found in the later query "
+        client1.on_publish = on_publish                          #assign function to callback
+        client1.connect(broker,port)                                 #establish connection
+        ret= client1.publish(topic,msg,qos=0,retain=False)                   #publish
+        quit()
+
+
+
 for item in points1:
         HP_new = item['value']
 if debug == 1:
